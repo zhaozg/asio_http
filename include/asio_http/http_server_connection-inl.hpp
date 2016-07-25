@@ -3,7 +3,7 @@
 #endif
 
 template <typename SocketType>
-basic_http_connection<SocketType>::basic_http_connection(boost::asio::io_service& io_service,
+basic_http_connection<SocketType>::basic_http_connection(asio::io_service& io_service,
 		SocketType * handler)
 	: handler_(handler)
 	, socket_(io_service)
@@ -33,10 +33,10 @@ template <typename SocketType>
 void basic_http_connection<SocketType>::start()
 {
 	socket_.async_read_some(buffer_.prepare(8),
-		boost::bind(&basic_http_connection<SocketType>::handler,
+		bind(&basic_http_connection<SocketType>::handler,
 			this->shared_from_this(),
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
+			std::placeholders::_1,
+			std::placeholders::_2));
 }
 
 template <typename SocketType>
@@ -117,16 +117,16 @@ int basic_http_connection<SocketType>::on_message_complete(http_parser * parser)
 {
 	basic_http_connection * conn = static_cast<basic_http_connection *>(parser->data);
 	conn->socket_.get_io_service().post(
-		boost::bind(&basic_http_connection::process_request, conn->shared_from_this()));
+		bind(&basic_http_connection::process_request, conn->shared_from_this()));
 	return 0;
 }
 
 template <typename SocketType>
-void basic_http_connection<SocketType>::handler(const boost::system::error_code& error, std::size_t bytes_transferred)
+void basic_http_connection<SocketType>::handler(const std::error_code& error, std::size_t bytes_transferred)
 {
 	if (!error && bytes_transferred)
 	{
-		const char * data = boost::asio::buffer_cast<const char *>(buffer_.data());
+		const char * data = asio::buffer_cast<const char *>(buffer_.data());
 		std::size_t nsize = http_parser_execute(&parser_, &settings_, data, bytes_transferred);
 		if (nsize != bytes_transferred)
 		{
@@ -144,7 +144,7 @@ void basic_http_connection<SocketType>::handler(const boost::system::error_code&
 }
 
 template <typename SocketType>
-void basic_http_connection<SocketType>::handle_write(const boost::system::error_code& error,
+void basic_http_connection<SocketType>::handle_write(const std::error_code& error,
 	size_t bytes_transferred)
 {
 	if (error)
@@ -183,10 +183,10 @@ void basic_http_connection<SocketType>::send_response(int status_code, std::stri
 	}
 	o << "\r\n";
 	o << message;
-	boost::asio::async_write(socket_, outgoing_buffer_,
-		boost::bind(&basic_http_connection<SocketType>::handle_write, this->shared_from_this(),
-					boost::asio::placeholders::error,
-					boost::asio::placeholders::bytes_transferred));
+	asio::async_write(socket_, outgoing_buffer_,
+		bind(&basic_http_connection<SocketType>::handle_write, this->shared_from_this(),
+					std::placeholders::_1,
+					std::placeholders::_2));
 }
 
 template <typename SocketType>

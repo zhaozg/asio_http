@@ -3,8 +3,8 @@
 #endif
 
 template <typename RequestHandler>
-http_server<RequestHandler>::http_server(boost::asio::io_service & io_svc,
-		boost::asio::ip::tcp::endpoint endpoint_,
+http_server<RequestHandler>::http_server(asio::io_service & io_svc,
+		asio::ip::tcp::endpoint endpoint_,
 		RequestHandler handler)
 	: io_svc_(io_svc)
 	, acceptor_(io_svc_, endpoint_)
@@ -19,8 +19,8 @@ void http_server<RequestHandler>::start_accept()
     typename connection_type::pointer new_connection =
 		connection_type::create(io_svc_, &request_handler_);
 	acceptor_.async_accept(new_connection->get_socket(),
-		boost::bind(&http_server<RequestHandler>::handle_accept, this, new_connection,
-		boost::asio::placeholders::error));
+		std::bind(&http_server<RequestHandler>::handle_accept, this, new_connection,
+		std::placeholders::_1));
 }
 
 template <typename RequestHandler>
@@ -31,7 +31,7 @@ void http_server<RequestHandler>::stop_accept()
 
 template <typename RequestHandler>
 void http_server<RequestHandler>::handle_accept(typename connection_type::pointer new_connection,
-	const boost::system::error_code& error)
+	const std::error_code& error)
 {
 	if (error)
 	{
