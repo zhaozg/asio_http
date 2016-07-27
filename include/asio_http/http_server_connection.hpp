@@ -7,6 +7,7 @@
 #include <system_error>
 #include <asio.hpp>
 #include <asio_http/aux/logging.hpp>
+#include <asio_http/asio/placeholders.hpp>
 #include "http_parser.h"
 #include "detail/status_codes.hpp"
 

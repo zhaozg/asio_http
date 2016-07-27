@@ -35,8 +35,8 @@ void basic_http_connection<SocketType>::start()
 	socket_.async_read_some(buffer_.prepare(8),
 		bind(&basic_http_connection<SocketType>::handler,
 			this->shared_from_this(),
-			std::placeholders::_1,
-			std::placeholders::_2));
+			asio::placeholders::error,
+			asio::placeholders::bytes_transferred));
 }
 
 template <typename SocketType>
@@ -185,8 +185,8 @@ void basic_http_connection<SocketType>::send_response(int status_code, std::stri
 	o << message;
 	asio::async_write(socket_, outgoing_buffer_,
 		bind(&basic_http_connection<SocketType>::handle_write, this->shared_from_this(),
-					std::placeholders::_1,
-					std::placeholders::_2));
+					asio::placeholders::error,
+					asio::placeholders::bytes_transferred));
 }
 
 template <typename SocketType>

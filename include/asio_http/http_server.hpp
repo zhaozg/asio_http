@@ -6,6 +6,7 @@
 #include <asio.hpp>
 #include <asio_http/http_server_connection.hpp>
 #include <asio_http/aux/logging.hpp>
+#include <asio_http/asio/placeholders.hpp>
 
 /**
  * HTTP server implementation

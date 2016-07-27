@@ -20,7 +20,7 @@ void http_server<RequestHandler>::start_accept()
 		connection_type::create(io_svc_, &request_handler_);
 	acceptor_.async_accept(new_connection->get_socket(),
 		std::bind(&http_server<RequestHandler>::handle_accept, this, new_connection,
-		std::placeholders::_1));
+		asio::placeholders::error));
 }
 
 template <typename RequestHandler>

@@ -3,7 +3,7 @@
 #endif
 
 template <typename Protocol, typename BodyHandler, typename DoneHandler>
-http_client_connection<Protocol, BodyHandler, DoneHandler>::http_client_connection(boost::asio::io_service & io_service,
+http_client_connection<Protocol, BodyHandler, DoneHandler>::http_client_connection(asio::io_service & io_service,
 		std::string url,
 		BodyHandler body_handler, DoneHandler done_handler)
 	: io_service_(io_service)
@@ -43,63 +43,63 @@ void http_client_connection<Protocol, BodyHandler, DoneHandler>::start()
 	std::string addr = url_.substr(
 		parsed_url_.field_data[UF_HOST].off,
 		parsed_url_.field_data[UF_HOST].len);
-	boost::asio::ip::tcp::resolver::query q(addr, port);
+	asio::ip::tcp::resolver::query q(addr, port);
 	resolver_.async_resolve(q, 
-		boost::bind(&http_client_connection::resolve_handler, this->shared_from_this(),
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::iterator));
+		std::bind(&http_client_connection::resolve_handler, this->shared_from_this(),
+			asio::placeholders::error,
+			asio::placeholders::iterator));
 }
 
 template <typename Protocol, typename BodyHandler, typename DoneHandler>
-void http_client_connection<Protocol, BodyHandler, DoneHandler>::resolve_handler(const boost::system::error_code& ec,
-	boost::asio::ip::tcp::resolver::iterator i)
+void http_client_connection<Protocol, BodyHandler, DoneHandler>::resolve_handler(const std::error_code& ec,
+	asio::ip::tcp::resolver::iterator i)
 {
 	if (ec)
 	{
-		io_service_.post(boost::bind(done_handler_, ec));
+		io_service_.post(std::bind(done_handler_, ec));
 		return;
 	}
-	assert(i != boost::asio::ip::tcp::resolver::iterator());
-	boost::asio::ip::tcp::endpoint ep = *i;
+	assert(i != asio::ip::tcp::resolver::iterator());
+	asio::ip::tcp::endpoint ep = *i;
 	socket_.async_connect(ep,
-		boost::bind(&http_client_connection::connect_handler, this->shared_from_this(),
-			boost::asio::placeholders::error,
+		std::bind(&http_client_connection::connect_handler, this->shared_from_this(),
+			asio::placeholders::error,
 			++i));
 }
 
 template <typename Protocol, typename BodyHandler, typename DoneHandler>
 void http_client_connection<Protocol, BodyHandler, DoneHandler>::connect_handler(
-	const boost::system::error_code& ec,
-	boost::asio::ip::tcp::resolver::iterator i)
+	const std::error_code& ec,
+	asio::ip::tcp::resolver::iterator i)
 {
 	if (!ec)
 	{
 		// An error occurred.
-		HTTP_SERVER_DEBUG_OUTPUT("connected to %s:%d", socket_.local_endpoint().address().to_string().c_str(), socket_.local_endpoint().port());
+		HTTP_SERVER_DEBUG_OUTPUT("connected to %s:%d\n", socket_.local_endpoint().address().to_string().c_str(), socket_.local_endpoint().port());
 		std::string path = url_.substr(
 			parsed_url_.field_data[UF_PATH].off,
 			url_.size());
 		std::ostream o(&request_buffer_);
 		o << "GET " << path << " HTTP/1.1\r\n\r\n";
-		boost::asio::async_write(socket_, request_buffer_,
-			boost::bind(&http_client_connection::write_handler, this->shared_from_this(),
-				boost::asio::placeholders::error,
-				boost::asio::placeholders::bytes_transferred));
+		asio::async_write(socket_, request_buffer_,
+			std::bind(&http_client_connection::write_handler, this->shared_from_this(),
+				asio::placeholders::error,
+				asio::placeholders::bytes_transferred));
 		return;
 	}
-	else if (i != boost::asio::ip::tcp::resolver::iterator())
+	else if (i != asio::ip::tcp::resolver::iterator())
 	{
 		HTTP_SERVER_DEBUG_OUTPUT("Trying to connect to %s\n", i->endpoint().address().to_string().c_str());
 		socket_.close();
-		boost::asio::ip::tcp::endpoint ep = *i;
+		asio::ip::tcp::endpoint ep = *i;
 		socket_.async_connect(ep,
-			boost::bind(&http_client_connection::connect_handler, this->shared_from_this(),
-				boost::asio::placeholders::error,
+			std::bind(&http_client_connection::connect_handler, this->shared_from_this(),
+				asio::placeholders::error,
 				++i));
 	}
 	else
 	{
-		io_service_.post(boost::bind(done_handler_, ec));
+		io_service_.post(std::bind(done_handler_, ec));
 	}
 }
 
@@ -108,15 +108,15 @@ void http_client_connection<Protocol, BodyHandler, DoneHandler>::start_read()
 {
 	HTTP_SERVER_DEBUG_OUTPUT("Reading...\n");
 	socket_.async_read_some(response_buffer_.prepare(1024),
-		boost::bind(&http_client_connection::read_handler,
+		std::bind(&http_client_connection::read_handler,
 			this->shared_from_this(),
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
+			asio::placeholders::error,
+			asio::placeholders::bytes_transferred));
 }
 
 template <typename Protocol, typename BodyHandler, typename DoneHandler>
 void http_client_connection<Protocol, BodyHandler, DoneHandler>::write_handler(
-	const boost::system::error_code& error,
+	const std::error_code& error,
 	std::size_t bytes_transferred)
 {
 	HTTP_SERVER_DEBUG_OUTPUT("Write %lu: %s\n",
@@ -124,7 +124,7 @@ void http_client_connection<Protocol, BodyHandler, DoneHandler>::write_handler(
 		error.message().c_str());
 	if (error)
 	{
-		io_service_.post(boost::bind(done_handler_, error));
+		io_service_.post(std::bind(done_handler_, error));
 		return;
 	}
 	request_buffer_.consume(bytes_transferred);
@@ -133,18 +133,18 @@ void http_client_connection<Protocol, BodyHandler, DoneHandler>::write_handler(
 
 template <typename Protocol, typename BodyHandler, typename DoneHandler>
 void http_client_connection<Protocol, BodyHandler, DoneHandler>::read_handler(
-	const boost::system::error_code& error,
+	const std::error_code& error,
 	std::size_t bytes_transferred)
 {
 	HTTP_SERVER_DEBUG_OUTPUT("Received data %s [%lu bytes]\n", error.message().c_str(), bytes_transferred);
 	if (!error && bytes_transferred)
 	{
-		const char * data = boost::asio::buffer_cast<const char *>(response_buffer_.data());
+		const char * data = asio::buffer_cast<const char *>(response_buffer_.data());
 		std::size_t nsize = http_parser_execute(&parser_, &settings_, data, bytes_transferred);
 		// std::cout << "nsize = " << nsize << std::endl;
 		if (nsize != bytes_transferred)
 		{
-			HTTP_SERVER_DEBUG_OUTPUT("http parser execute fail %lu/%lu", nsize, bytes_transferred);
+			HTTP_SERVER_DEBUG_OUTPUT("http parser execute fail %lu/%lu\n", nsize, bytes_transferred);
 			socket_.close();
 			return;
 		}
@@ -162,7 +162,7 @@ int http_client_connection<Protocol, BodyHandler, DoneHandler>::on_body(http_par
 {
 	assert(parser->data);
 	http_client_connection * obj = static_cast<http_client_connection *>(parser->data);
-	obj->body_handler_(boost::system::error_code(), boost::asio::const_buffer(at, length));
+	obj->body_handler_(std::error_code(), asio::const_buffer(at, length));
 	return 0;
 }
 
@@ -171,7 +171,7 @@ int http_client_connection<Protocol, BodyHandler, DoneHandler>::on_message_compl
 {
 	assert(parser->data);
 	http_client_connection * obj = static_cast<http_client_connection *>(parser->data);
-	obj->io_service_.post(boost::bind(obj->done_handler_, boost::system::error_code()));
+	obj->io_service_.post(std::bind(obj->done_handler_, std::error_code()));
 	obj->socket_.close();
 	return 0;
 }
