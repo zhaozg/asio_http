@@ -8,7 +8,16 @@ You can create your own high performance HTTP based services in seconds. This li
 Uses stand-alone [ASIO](http://think-async.com/Asio) library and C++11 without the requirement of boost like the original implementation.
 
 # Building
-CMake files need to be updated. Considering using [Conan](https://conan.io) package manager.
+
+    git clone https://github.com/thejustinwalsh/asio_http.git
+    cd asio_http
+    git submodule update --init
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+Still Considering using [Conan](https://conan.io) package manager.
 
 # License
 The MIT License (MIT)
@@ -19,3 +28,5 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*Portions of this code (http_parser.c) are based on code from NGINX copyright Igor Sysoev with additional changes licensed under the same terms as NGINX and copyright Joyent, Inc. and other Node contributors.*
