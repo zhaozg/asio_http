@@ -1,27 +1,30 @@
-CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
-PROJECT (asio_http)
+cmake_minimum_required(VERSION 3.4.3)
+project(asio_http)
 
-OPTION (ASIO_HTTP_BUILD_EXAMPLES "Build asio_http examples" OFF)
-OPTION (ASIO_HTTP_BUILD_TESTS "Build asio_http tests" OFF)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-INCLUDE_DIRECTORIES (
-	"${CMAKE_CURRENT_SOURCE_DIR}/include")
+option(ASIO_HTTP_BUILD_EXAMPLES "Build asio_http examples" ON)
+#option(ASIO_HTTP_BUILD_TESTS "Build asio_http tests" OFF)
 
-SET (asio_http_server_SOURCES
-	src/http_parser.c)
-ADD_LIBRARY (asio_http
-	${asio_http_server_SOURCES})
-INSTALL (DIRECTORY include/ DESTINATION include)
-INSTALL (TARGETS asio_http
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+add_definitions(-DASIO_STANDALONE -DASIO_SEPARATE_COMPILATION)
 
-IF (ASIO_HTTP_BUILD_EXAMPLES)
-	ADD_SUBDIRECTORY (examples)
-ENDIF ()
+include_directories(asio_http PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/asio/asio/include")
 
-IF (ASIO_HTTP_BUILD_TESTS)
-	ENABLE_TESTING ()
-	ADD_SUBDIRECTORY (tests)
-ENDIF ()
+add_library(asio_http src/http_parser.c vendor/asio/asio/src/asio.cpp)
+
+install(DIRECTORY include/ DESTINATION include)
+install(TARGETS asio_http
+		  RUNTIME DESTINATION bin
+		  LIBRARY DESTINATION lib
+		  ARCHIVE DESTINATION lib)
+
+if(ASIO_HTTP_BUILD_EXAMPLES)
+	add_subdirectory(examples)
+endif()
+
+if(ASIO_HTTP_BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(tests)
+endif()
