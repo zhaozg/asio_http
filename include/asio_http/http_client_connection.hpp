@@ -45,7 +45,7 @@ struct http_client_connection
 	asio::streambuf response_buffer_;
 	http_parser_settings settings_;
 	http_parser parser_;
-	/** 
+	/**
 	 * Status string. For example "OK"
 	 */
 	std::string status_;

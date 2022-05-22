@@ -44,7 +44,7 @@ void http_client_connection<Protocol, BodyHandler, DoneHandler>::start()
 		parsed_url_.field_data[UF_HOST].off,
 		parsed_url_.field_data[UF_HOST].len);
 	asio::ip::tcp::resolver::query q(addr, port);
-	resolver_.async_resolve(q, 
+	resolver_.async_resolve(q,
 		std::bind(&http_client_connection::resolve_handler, this->shared_from_this(),
 			asio::placeholders::error,
 			asio::placeholders::iterator));

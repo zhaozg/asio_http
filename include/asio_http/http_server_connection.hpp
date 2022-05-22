@@ -55,7 +55,7 @@ private:
 	SocketType * handler_;
 	basic_http_connection(asio::io_service& io_service,
 		SocketType * handler);
-	
+
 	void handle_write(const std::error_code& error_code /*error*/,
 		size_t /*bytes_transferred*/);
 	asio::ip::tcp::socket socket_;
@@ -96,7 +96,7 @@ private:
 	 */
 	void process_request();
 	/**
-	 * Full URL of the current request 
+	 * Full URL of the current request
 	 */
 	std::string request_url_;
 	enum
