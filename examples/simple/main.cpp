@@ -56,14 +56,14 @@ main(int argc, char * argv[])
 	asio::io_service io_svc;
 	
 	// Server
-	http_server<http_request_handler> server(io_svc, tcp::endpoint(tcp::v4(), 5000));
+	http_server<http_request_handler> server(io_svc, tcp::endpoint(tcp::v4(), 8080));
 	
 	// Client
 	http_client & client = asio::use_service<http_client>(io_svc);
 	std::string data;
 	client_body_handler body(data);
 	client_done_handler done(data);
-	client_connection::pointer connection = client.create_request("http://127.0.0.1:5000/", body, done);
+	client_connection::pointer connection = client.create_request("http://127.0.0.1:8080/", body, done);
 	connection->start();
 	
 	
