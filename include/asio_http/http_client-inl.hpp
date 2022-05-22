@@ -28,7 +28,7 @@ std::shared_ptr<
 {
 	typedef http_client_connection<Protocol, BodyHandler, DoneHandler> result_type;
 	return std::make_shared<result_type>(
-		std::ref(get_io_service()),
+		std::ref(get_io_context()),
 		url,
 		body_handler,
 		done_handler);

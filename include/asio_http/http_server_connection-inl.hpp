@@ -116,7 +116,7 @@ template <typename SocketType>
 int basic_http_connection<SocketType>::on_message_complete(http_parser * parser)
 {
 	basic_http_connection * conn = static_cast<basic_http_connection *>(parser->data);
-	conn->socket_.get_io_service().post(
+	asio::post(conn->socket_.get_executor(),
 		bind(&basic_http_connection::process_request, conn->shared_from_this()));
 	return 0;
 }
