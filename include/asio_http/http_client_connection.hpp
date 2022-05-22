@@ -6,6 +6,8 @@
 #include <asio.hpp>
 #include <asio_http/asio/placeholders.hpp>
 
+#include "detail/headers.hpp"
+
 template <typename T, typename BodyHandler, typename DoneHandler>
 struct http_client_connection
 	: std::enable_shared_from_this<
@@ -19,6 +21,7 @@ struct http_client_connection
 	typedef std::shared_ptr<http_client_connection> pointer;
 	http_client_connection(asio::io_service & io_service,
 		std::string url,
+		const Headers& headers,
 		BodyHandler body_handler, DoneHandler done_handler);
 	~http_client_connection();
 	void start();
@@ -38,6 +41,7 @@ struct http_client_connection
 	asio::ip::tcp::resolver resolver_;
 	T socket_;
 	std::string url_;
+	Headers headers_;
 	http_parser_url parsed_url_;
 	BodyHandler body_handler_;
 	DoneHandler done_handler_;

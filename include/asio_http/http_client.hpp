@@ -19,7 +19,8 @@ struct basic_http_client
 			BodyHandler,
 			DoneHandler
 		>
-	> create_request(const std::string & url, BodyHandler body_handler, DoneHandler done_handler);
+	> create_request(const std::string & url, const Headers & headers,
+			             BodyHandler body_handler, DoneHandler done_handler);
 };
 
 #include "http_client-inl.hpp"

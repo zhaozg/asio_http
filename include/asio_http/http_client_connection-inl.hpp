@@ -5,6 +5,7 @@
 template <typename Protocol, typename BodyHandler, typename DoneHandler>
 http_client_connection<Protocol, BodyHandler, DoneHandler>::http_client_connection(asio::io_service & io_service,
 		std::string url,
+		const Headers &headers,
 		BodyHandler body_handler, DoneHandler done_handler)
 	: io_service_(io_service)
 	, resolver_(io_service_)
@@ -80,7 +81,8 @@ void http_client_connection<Protocol, BodyHandler, DoneHandler>::connect_handler
 			parsed_url_.field_data[UF_PATH].off,
 			url_.size());
 		std::ostream o(&request_buffer_);
-		o << "GET " << path << " HTTP/1.1\r\n\r\n";
+		o << "GET " << path << " HTTP/1.1\r\n";
+		o << headers_;
 		asio::async_write(socket_, request_buffer_,
 			std::bind(&http_client_connection::write_handler, this->shared_from_this(),
 				asio::placeholders::error,

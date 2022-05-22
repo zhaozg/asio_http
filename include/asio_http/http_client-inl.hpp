@@ -24,12 +24,17 @@ std::shared_ptr<
 		BodyHandler,
 		DoneHandler
 	>
-> basic_http_client<Protocol>::create_request(const std::string & url, BodyHandler body_handler, DoneHandler done_handler)
+> basic_http_client<Protocol>::create_request(const std::string & url,
+		const Headers & headers,
+		BodyHandler body_handler, DoneHandler done_handler)
 {
 	typedef http_client_connection<Protocol, BodyHandler, DoneHandler> result_type;
 	return std::make_shared<result_type>(
 		std::ref(get_io_context()),
 		url,
+		headers,
 		body_handler,
 		done_handler);
 }
+
+
